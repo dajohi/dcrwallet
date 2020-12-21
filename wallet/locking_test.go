@@ -16,6 +16,8 @@ import (
 var testPrivPass = []byte("private")
 
 func TestLocking(t *testing.T) {
+	t.Parallel()
+
 	w, teardown := testWallet(t, &basicWalletConfig)
 	defer teardown()
 

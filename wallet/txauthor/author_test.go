@@ -65,6 +65,8 @@ func makeInputSource(unspents []*wire.TxOut) InputSource {
 }
 
 func TestNewUnsignedTransaction(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		UnspentOutputs   []*wire.TxOut
 		Outputs          []*wire.TxOut

@@ -49,6 +49,8 @@ func ecKeygen(curve elliptic.Curve) keygen {
 }
 
 func TestClientCert(t *testing.T) {
+	t.Parallel()
+
 	algos := []keygen{
 		ed25519Keygen(),
 		ecKeygen(elliptic.P256()),
@@ -123,6 +125,8 @@ func testClientCert(t *testing.T, pub, priv interface{}, name string) {
 }
 
 func TestUntrustedClientCert(t *testing.T) {
+	t.Parallel()
+
 	algo := ed25519Keygen()
 	pub1, priv1, _ := algo(t) // trusted by server
 	pub2, priv2, _ := algo(t) // presented by client

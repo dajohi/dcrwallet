@@ -41,6 +41,8 @@ var tests = []struct {
 }
 
 func TestDecode(t *testing.T) {
+	t.Parallel()
+
 	for _, test := range tests {
 		data, err := DecodeMnemonics(strings.Split(test.mnemonics, " "))
 		if err != nil {
@@ -54,6 +56,8 @@ func TestDecode(t *testing.T) {
 }
 
 func TestEncodeMnemonics(t *testing.T) {
+	t.Parallel()
+
 	for _, test := range tests {
 		mnemonicsSlice := strings.Split(test.mnemonics, " ")
 		for i, b := range test.data {

@@ -18,6 +18,8 @@ import (
 )
 
 func TestInsertsCreditsDebitsRollbacks(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	db, _, s, _, teardown, err := cloneDB("inserts_credits_debits_rollbacks.kv")
 	defer teardown()
@@ -352,6 +354,8 @@ func spendOutput(txHash *chainhash.Hash, index uint32, tree int8, outputValues .
 }
 
 func TestCoinbases(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	db, _, s, _, teardown, err := cloneDB("coinbases.kv")
 	defer teardown()

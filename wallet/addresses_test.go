@@ -235,6 +235,8 @@ func testKnownAddresses(tc *testContext, prefix string, unlock bool, newAddr new
 }
 
 func TestAddresses(t *testing.T) {
+	t.Parallel()
+
 	testAddresses(t, false)
 	testAddresses(t, true)
 }
@@ -266,6 +268,8 @@ func testAddresses(t *testing.T, unlock bool) {
 }
 
 func TestAccountIndexes(t *testing.T) {
+	t.Parallel()
+
 	cfg := basicWalletConfig
 	w, teardown := testWallet(t, &cfg)
 	defer teardown()

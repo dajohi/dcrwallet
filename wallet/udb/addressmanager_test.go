@@ -431,6 +431,8 @@ func testImportScript(tc *testContext, wb walletdb.ReadWriteBucket) {
 }
 
 func TestManagerImports(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	db, mgr, _, _, teardown, err := cloneDB("imports.kv")
 	defer teardown()
@@ -822,6 +824,8 @@ func testEncryptDecrypt(tc *testContext) {
 }
 
 func TestManagerEncryptDecrypt(t *testing.T) {
+	t.Parallel()
+
 	db, mgr, _, _, teardown, err := cloneDB("encrypt_decrypt.kv")
 	defer teardown()
 	if err != nil {
@@ -843,6 +847,8 @@ func TestManagerEncryptDecrypt(t *testing.T) {
 }
 
 func TestChangePassphrase(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	db, mgr, _, _, teardown, err := cloneDB("change_passphrase.kv")
 	defer teardown()
@@ -899,6 +905,8 @@ func testManagerAPI(tc *testContext) {
 // manager such as running the full set of API tests against a newly converted
 // copy as well as when it is opened from an existing namespace.
 func TestManagerWatchingOnly(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	db, mgr, _, _, teardown, err := cloneDB("mgr_watching_only.kv")
 	defer teardown()
@@ -965,6 +973,8 @@ func TestManagerWatchingOnly(t *testing.T) {
 // create mode. It makes use of a test context because the address manager is
 // persistent and much of the testing involves having specific state.
 func TestManager(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("short: skipping TestManager")
 	}

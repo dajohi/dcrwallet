@@ -9,6 +9,8 @@ import (
 )
 
 func TestStakePoolTicketFee(t *testing.T) {
+t.Parallel()
+
 	params := chaincfg.MainNetParams()
 	tests := []struct {
 		StakeDiff dcrutil.Amount

@@ -37,6 +37,8 @@ func serverMethods() map[string]struct{} {
 // TestRPCMethodHelpGeneration ensures that help text can be generated for every
 // method of the RPC server for every supported locale.
 func TestRPCMethodHelpGeneration(t *testing.T) {
+	t.Parallel()
+
 	needsGenerate := false
 
 	defer func() {
@@ -76,6 +78,8 @@ func TestRPCMethodHelpGeneration(t *testing.T) {
 // TestRPCMethodUsageGeneration ensures that single line usage text can be
 // generated for every supported request of the RPC server.
 func TestRPCMethodUsageGeneration(t *testing.T) {
+	t.Parallel()
+
 	needsGenerate := false
 
 	defer func() {

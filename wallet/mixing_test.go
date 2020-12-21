@@ -19,6 +19,7 @@ func MsgTxFromHex(hexTx string) (*wire.MsgTx, error) {
 }
 
 func TestIsMixTx(t *testing.T) {
+t.Parallel()
 
 	// 11x 2.68435456
 	tx0, err := MsgTxFromHex(mix0Hex)
@@ -55,6 +56,8 @@ func TestIsMixTx(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			got, mixDenom, mixTotal := PossibleCoinJoin(tt.tx)
 			if got != tt.want {
 				t.Errorf("IsMixTx() got = %v, want %v", got, tt.want)

@@ -23,6 +23,8 @@ const dbType = "bdb"
 // TestCreateOpenFail ensures that errors related to creating and opening a
 // database are handled properly.
 func TestCreateOpenFail(t *testing.T) {
+	t.Parallel()
+
 	// Ensure that attempting to open a database that doesn't exist returns
 	// the expected error.
 	if _, err := walletdb.Open(dbType, "noexist.db"); !errors.Is(err, errors.NotExist) {
@@ -90,6 +92,8 @@ func TestCreateOpenFail(t *testing.T) {
 // TestPersistence ensures that values stored are still valid after closing and
 // reopening the database.
 func TestPersistence(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	// Create a new database to run tests against.
 	dbPath := "persistencetest.db"

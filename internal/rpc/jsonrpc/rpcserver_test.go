@@ -13,6 +13,8 @@ import (
 )
 
 func TestThrottle(t *testing.T) {
+	t.Parallel()
+
 	const threshold = 1
 	busy := make(chan struct{})
 

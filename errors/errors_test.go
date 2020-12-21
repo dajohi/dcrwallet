@@ -34,6 +34,8 @@ func eq(e0, e1 *Error) bool {
 }
 
 func TestCollapse(t *testing.T) {
+	t.Parallel()
+
 	e0 := E(Op("abc"))
 	e0 = E(e0, Passphrase)
 	if depth(e0) != 1 {
@@ -47,6 +49,8 @@ func TestCollapse(t *testing.T) {
 }
 
 func TestIs(t *testing.T) {
+	t.Parallel()
+
 	base := std.New("base error")
 	e := E(base, Op("operation"), Permission)
 	if !Is(e, base) {
@@ -70,6 +74,8 @@ func TestIs(t *testing.T) {
 }
 
 func TestCause(t *testing.T) {
+	t.Parallel()
+
 	inner := New("inner")
 	outer := E(inner)
 	if Cause(outer) != inner {

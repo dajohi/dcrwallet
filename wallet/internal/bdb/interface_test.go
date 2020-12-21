@@ -708,6 +708,8 @@ func testInterface(t *testing.T, db walletdb.DB) {
 
 // TestInterface performs all interfaces tests for this database driver.
 func TestInterface(t *testing.T) {
+	t.Parallel()
+
 	// Create a new database to run tests against.
 	dbPath := "interfacetest.db"
 	db, err := walletdb.Create(dbType, dbPath)

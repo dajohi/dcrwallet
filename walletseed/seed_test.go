@@ -44,6 +44,8 @@ var mnemonicTests = []struct {
 }
 
 func TestEncodeMnemonicSlice(t *testing.T) {
+	t.Parallel()
+
 	for i, test := range mnemonicTests {
 		mnemonics := strings.Join(EncodeMnemonicSlice(test.data), " ")
 		if mnemonics != test.mnemonics {
@@ -53,6 +55,8 @@ func TestEncodeMnemonicSlice(t *testing.T) {
 }
 
 func TestEncodeMnemonic(t *testing.T) {
+	t.Parallel()
+
 	for i, test := range mnemonicTests {
 		mnemonics := EncodeMnemonic(test.data)
 		if mnemonics != test.mnemonics {
@@ -62,6 +66,8 @@ func TestEncodeMnemonic(t *testing.T) {
 }
 
 func TestDecodeMnemonic(t *testing.T) {
+	t.Parallel()
+
 	for i, test := range mnemonicTests {
 		data, err := DecodeUserInput(test.mnemonics)
 		if err != nil {
@@ -75,6 +81,8 @@ func TestDecodeMnemonic(t *testing.T) {
 }
 
 func TestDecodeHex(t *testing.T) {
+	t.Parallel()
+
 	for i, test := range mnemonicTests {
 		data, err := DecodeUserInput(hex.EncodeToString(test.data))
 		if err != nil {

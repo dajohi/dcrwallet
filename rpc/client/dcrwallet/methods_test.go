@@ -28,6 +28,8 @@ const zeroTx = `"010000000000000000000000000000"`
 var mainnetParams = chaincfg.MainNetParams()
 
 func TestSignRawTransactionErrors(t *testing.T) {
+	t.Parallel()
+
 	expectedErrs := []types.SignRawTransactionError{{
 		TxID:      "bfc0e650ad0cc0dd5fa88b6bc84beb5ea4a675b4353671532796171ed319341b",
 		Vout:      0,

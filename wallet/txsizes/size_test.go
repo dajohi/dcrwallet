@@ -29,6 +29,8 @@ func makeInts(value int, n int) []int {
 }
 
 func TestEstimateSerializeSize(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		InputScriptSizes     []int
 		OutputScriptLengths  []int

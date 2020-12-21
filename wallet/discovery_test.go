@@ -14,6 +14,8 @@ import (
 // TestDiscoveryCursorPos tests that the account cursor index is not reset
 // during address discovery such that an address could be reused.
 func TestDiscoveryCursorPos(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 
 	cfg := basicWalletConfig
