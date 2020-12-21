@@ -2644,7 +2644,8 @@ func createAddressManager(ns walletdb.ReadWriteBucket, seed, pubPassphrase, priv
 	if err != nil {
 		return err
 	}
-	masterKeyPriv, err := newSecretKey(&privPassphrase, scryptOpts)
+	pp := privPassphrase
+	masterKeyPriv, err := newSecretKey(&pp, scryptOpts)
 	if err != nil {
 		return err
 	}
