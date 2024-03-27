@@ -36,7 +36,7 @@ type NetworkBackend interface {
 	CFiltersV2(ctx context.Context, blockHashes []*chainhash.Hash) ([]FilterProof, error)
 	PublishTransactions(ctx context.Context, txs ...*wire.MsgTx) error
 	LoadTxFilter(ctx context.Context, reload bool, addrs []stdaddr.Address, outpoints []wire.OutPoint) error
-	Rescan(ctx context.Context, blocks []chainhash.Hash, save func(block *chainhash.Hash, txs []*wire.MsgTx) error) error
+	Rescan(ctx context.Context, blocks []chainhash.Hash, save func(block []*chainhash.Hash, txs [][]*wire.MsgTx) error) error
 
 	// This is impossible to determine over the wire protocol, and will always
 	// error.  Use Wallet.NextStakeDifficulty to calculate the next ticket price

@@ -168,8 +168,12 @@ func (w *Wallet) logRescannedTx(txmgrNs walletdb.ReadBucket, height int32, tx *w
 // does not update the network backend with data to watch for future
 // relevant transactions as the rescanner is assumed to handle this
 // task.
-func (w *Wallet) saveRescanned(ctx context.Context, hash *chainhash.Hash,
-	txs []*wire.MsgTx, logTxs bool) error {
+func (w *Wallet) saveRescanned(ctx context.Context, hashes []*chainhash.Hash,
+	txs [][]*wire.MsgTx, logTxs bool) error {
+
+	if len(hashes) != len(txs) {
+		return errors.New("retarded")
+	}
 
 	const op errors.Op = "wallet.saveRescanned"
 
@@ -178,30 +182,37 @@ func (w *Wallet) saveRescanned(ctx context.Context, hash *chainhash.Hash,
 
 	err := walletdb.Update(ctx, w.db, func(dbtx walletdb.ReadWriteTx) error {
 		txmgrNs := dbtx.ReadWriteBucket(wtxmgrNamespaceKey)
-		blockMeta, err := w.txStore.GetBlockMetaForHash(txmgrNs, hash)
-		if err != nil {
-			return err
-		}
-		header, err := w.txStore.GetBlockHeader(dbtx, hash)
-		if err != nil {
-			return err
-		}
 
-		for _, tx := range txs {
-			if logTxs {
-				w.logRescannedTx(txmgrNs, blockMeta.Height, tx)
-			}
-
-			rec, err := udb.NewTxRecordFromMsgTx(tx, time.Now())
+		for idx, hash := range hashes {
+			blockMeta, err := w.txStore.GetBlockMetaForHash(txmgrNs, hash)
 			if err != nil {
 				return err
 			}
-			_, err = w.processTransactionRecord(ctx, dbtx, rec, header, &blockMeta)
+			header, err := w.txStore.GetBlockHeader(dbtx, hash)
+			if err != nil {
+				return err
+			}
+
+			for _, tx := range txs[idx] {
+				if logTxs {
+					w.logRescannedTx(txmgrNs, blockMeta.Height, tx)
+				}
+
+				rec, err := udb.NewTxRecordFromMsgTx(tx, time.Now())
+				if err != nil {
+					return err
+				}
+				_, err = w.processTransactionRecord(ctx, dbtx, rec, header, &blockMeta)
+				if err != nil {
+					return err
+				}
+			}
+			err = w.txStore.UpdateProcessedTxsBlockMarker(dbtx, hash)
 			if err != nil {
 				return err
 			}
 		}
-		return w.txStore.UpdateProcessedTxsBlockMarker(dbtx, hash)
+		return nil
 	})
 	if err != nil {
 		return errors.E(op, err)
@@ -256,8 +267,8 @@ func (w *Wallet) rescan(ctx context.Context, n NetworkBackend,
 			}
 		}
 		log.Infof("Rescanning block range [%v, %v]...", height, through)
-		saveRescanned := func(block *chainhash.Hash, txs []*wire.MsgTx) error {
-			return w.saveRescanned(ctx, block, txs, logTxs)
+		saveRescanned := func(blocks []*chainhash.Hash, txs [][]*wire.MsgTx) error {
+			return w.saveRescanned(ctx, blocks, txs, logTxs)
 		}
 		err = n.Rescan(ctx, rescanBlocks, saveRescanned)
 		if err != nil {

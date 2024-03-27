@@ -43,7 +43,7 @@ func (s *Syncer) LoadTxFilter(ctx context.Context, reload bool, addrs []stdaddr.
 }
 
 // Rescan is part of the wallet.NetworkBackend interface.
-func (s *Syncer) Rescan(ctx context.Context, blocks []chainhash.Hash, save func(block *chainhash.Hash, txs []*wire.MsgTx) error) error {
+func (s *Syncer) Rescan(ctx context.Context, blocks []chainhash.Hash, save func([]*chainhash.Hash, [][]*wire.MsgTx) error) error {
 	return s.rpc.Rescan(ctx, blocks, save)
 }
 

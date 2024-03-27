@@ -341,7 +341,7 @@ func (r *RPC) LoadTxFilter(ctx context.Context, reload bool, addrs []stdaddr.Add
 // Rescan rescans the specified blocks in order, using the loaded transaction
 // filter to determine which transactions are possibly relevant to the client.
 // The save function is called for the discovered transactions from each block.
-func (r *RPC) Rescan(ctx context.Context, blocks []chainhash.Hash, save func(block *chainhash.Hash, txs []*wire.MsgTx) error) error {
+func (r *RPC) Rescan(ctx context.Context, blocks []chainhash.Hash, save func([]*chainhash.Hash, [][]*wire.MsgTx) error) error {
 	const op errors.Op = "dcrd.Rescan"
 
 	var res struct {
@@ -354,6 +354,8 @@ func (r *RPC) Rescan(ctx context.Context, blocks []chainhash.Hash, save func(blo
 	if err != nil {
 		return errors.E(op, err)
 	}
+	blockHashes := make([]*chainhash.Hash, 0, len(res.DiscoveredData))
+	blockTxs := make([][]*wire.MsgTx, 0, len(res.DiscoveredData))
 	for _, d := range res.DiscoveredData {
 		blockHash, err := chainhash.NewHashFromStr(d.Hash)
 		if err != nil {
@@ -368,12 +370,11 @@ func (r *RPC) Rescan(ctx context.Context, blocks []chainhash.Hash, save func(blo
 			}
 			txs = append(txs, tx)
 		}
-		err = save(blockHash, txs)
-		if err != nil {
-			return err
-		}
+		blockHashes = append(blockHashes, blockHash)
+		blockTxs = append(blockTxs, txs)
 	}
-	return nil
+
+	return save(blockHashes, blockTxs)
 }
 
 // StakeDifficulty returns the stake difficulty (AKA ticket price) of the next

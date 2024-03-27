@@ -427,7 +427,7 @@ func (s *Syncer) PublishTransactions(ctx context.Context, txs ...*wire.MsgTx) er
 }
 
 // Rescan implements the Rescan method of the wallet.NetworkBackend interface.
-func (s *Syncer) Rescan(ctx context.Context, blockHashes []chainhash.Hash, save func(*chainhash.Hash, []*wire.MsgTx) error) error {
+func (s *Syncer) Rescan(ctx context.Context, blockHashes []chainhash.Hash, save func([]*chainhash.Hash, [][]*wire.MsgTx) error) error {
 	const op errors.Op = "spv.Rescan"
 
 	cfilters := make([]*gcs.FilterV2, 0, len(blockHashes))
@@ -527,6 +527,8 @@ func (s *Syncer) Rescan(ctx context.Context, blockHashes []chainhash.Hash, save 
 		}
 	}
 
+	rescanBlockHashes := make([]*chainhash.Hash, 0, len(blockMatches))
+	rescanBlockTxs := make([][]*wire.MsgTx, 0, len(blockMatches))
 	for i := 0; i < len(blockMatches); i++ {
 		b := blockMatches[i]
 		if b == nil {
@@ -540,14 +542,12 @@ func (s *Syncer) Rescan(ctx context.Context, blockHashes []chainhash.Hash, save 
 
 		matchedTxs := s.rescanBlock(b)
 		if len(matchedTxs) != 0 {
-			err := save(&blockHashes[i], matchedTxs)
-			if err != nil {
-				return err
-			}
+			rescanBlockHashes = append(rescanBlockHashes, &blockHashes[i])
+			rescanBlockTxs = append(rescanBlockTxs, matchedTxs)
 		}
 	}
 
-	return nil
+	return save(rescanBlockHashes, rescanBlockTxs)
 }
 
 // StakeDifficulty implements the StakeDifficulty method of the
