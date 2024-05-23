@@ -131,6 +131,7 @@ type LocalPeer struct {
 	atomicMask          atomic.Uint64
 	atomicPeerIDCounter atomic.Uint64
 	atomicRequireHeight atomic.Int32
+	atomicDisableMixing atomic.Bool
 
 	dial DialFunc
 
@@ -183,6 +184,11 @@ func (lp *LocalPeer) SetDialFunc(dial DialFunc) {
 // runs.
 func (lp *LocalPeer) SetDisableRelayTx(disableRelayTx bool) {
 	lp.disableRelayTx = disableRelayTx
+}
+
+// SetDisableMixing sets whether to request mixing messages from remote peers.
+func (lp *LocalPeer) SetDisableMixing(disableMixing bool) {
+	lp.atomicDisableMixing.Store(disableMixing)
 }
 
 func isCGNAT(ip net.IP) bool {
@@ -344,6 +350,10 @@ func (lp *LocalPeer) SeedPeers(ctx context.Context, services wire.ServiceFlag) {
 		Path:     "/api/addrs",
 		RawQuery: fmt.Sprintf("services=%d", services),
 	}
+	if !lp.atomicDisableMixing.Load() {
+		url.RawQuery += fmt.Sprintf("&pver=%d", wire.MixVersion)
+	}
+
 	resps := make(chan *http.Response)
 	client := http.Client{
 		Transport: &http.Transport{
@@ -1194,6 +1204,11 @@ func (rp *RemotePeer) deleteRequestedMixMsg(hash *chainhash.Hash) {
 }
 
 func (rp *RemotePeer) receivedMixMsg(ctx context.Context, msg mixing.Message) {
+	// Do not process mixing messages if disabled.
+	if rp.lp.atomicDisableMixing.Load() {
+		return
+	}
+
 	const opf = "remotepeer(%v).receivedMixMsg(%v)"
 	mixHash := writeMixMsgHash(msg)
 	rp.requestedMixMsgsMu.Lock()
@@ -1545,6 +1560,11 @@ func (rp *RemotePeer) Transactions(ctx context.Context, hashes []*chainhash.Hash
 // messages are received for requested mix messages.
 func (rp *RemotePeer) MixMessages(ctx context.Context, hashes []*chainhash.Hash) ([]mixing.Message, error) {
 	const opf = "remotepeer(%v).MixMessages"
+
+	// Do not request mixing messages if disabled.
+	if rp.lp.atomicDisableMixing.Load() {
+		return nil, fmt.Errorf("mixing is disabled")
+	}
 
 	m := wire.NewMsgGetDataSizeHint(uint(len(hashes)))
 	cs := make([]chan mixing.Message, len(hashes))
@@ -1999,8 +2019,7 @@ func (rp *RemotePeer) HeadersAsync(ctx context.Context, blockLocators []*chainha
 	}
 }
 
-// PublishTransactions pushes an inventory message advertising transaction
-// hashes of txs.
+// PublishTransactions pushes an inventory message advertising hashes of transactions.
 func (rp *RemotePeer) PublishTransactions(ctx context.Context, txs ...*wire.MsgTx) error {
 	const opf = "remotepeer(%v).PublishTransactions"
 	inv := wire.NewMsgInvSizeHint(uint(len(txs)))
@@ -2021,10 +2040,14 @@ func (rp *RemotePeer) PublishTransactions(ctx context.Context, txs ...*wire.MsgT
 	return nil
 }
 
-// PublishTransactions pushes an inventory message advertising transaction
-// hashes of txs.
+// PublishMixMessages pushes an inventory message advertising hashes of mixing messages.
 func (rp *RemotePeer) PublishMixMessages(ctx context.Context, msgs ...mixing.Message) error {
 	const opf = "remotepeer(%v).PublishMixMessages"
+
+	// Do not request mixing messages if disabled.
+	if rp.lp.atomicDisableMixing.Load() {
+		return fmt.Errorf("mixing is disabled")
+	}
 
 	if rp.pver < wire.MixVersion {
 		op := errors.Opf(opf, rp.raddr)
