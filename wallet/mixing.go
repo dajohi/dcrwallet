@@ -6,6 +6,7 @@ package wallet
 
 import (
 	"context"
+	"fmt"
 	"sync/atomic"
 
 	"decred.org/dcrwallet/v5/errors"
@@ -291,6 +292,10 @@ func (w *Wallet) MixOutput(ctx context.Context, output *wire.OutPoint, changeAcc
 		txDetails, err := w.txStore.TxDetails(txmgrNs, &output.Hash)
 		if err != nil {
 			return err
+		}
+		if output.Index >= uint32(len(txDetails.MsgTx.TxOut)) {
+			return fmt.Errorf("index out of range: index:%d txouts:%d",
+				output.Index, len(txDetails.MsgTx.TxOut))
 		}
 		out := txDetails.MsgTx.TxOut[output.Index]
 		prevScript = out.PkScript
